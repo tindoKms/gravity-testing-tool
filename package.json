@@ -1,0 +1,23 @@
+{
+  "name": "gravity-testing-tool",
+  "version": "1.0.0",
+  "description": "Testing tool for validating LLM evaluation results in audit processes",
+  "main": "src/index.js",
+  "scripts": {
+    "build-template": "node src/index.js build-template"
+  },
+  "keywords": [
+    "audit",
+    "testing",
+    "llm",
+    "validation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1",
+    "exceljs": "^4.4.0",
+    "fs-extra": "^11.2.0"
+  }
+}
