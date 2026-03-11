@@ -1,86 +1,109 @@
 # Gravity Testing Tool
 
-An internal application testing tool that validates LLM evaluation results for audit processes.
+Công cụ để kiểm thử và xác thực kết quả đánh giá LLM trong quy trình audit.
 
-## Setup
+## Yêu cầu hệ thống
 
-### 1. Install Dependencies
+- Node.js >= 14.0.0
+- npm >= 6.0.0
 
+## Cài đặt
+
+1. Clone repository:
 ```bash
-yarn install
+git clone <repository-url>
+cd gravity-testing-tool
 ```
 
-### 2. Configure Environment
+2. Cài đặt dependencies:
+```bash
+npm install
+```
 
-Copy the example environment file and update with your values:
-
+3. Tạo file cấu hình môi trường:
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and provide:
-- `SERVER_ENDPOINT`: The API server endpoint (e.g., `localhost:3000`)
-- `ACCESS_TOKEN`: Your authentication token
-- `BATCHNAME`: The batch name for the audit
-- `INSTANCEID`: The instance ID for the audit
-- `AUDIT_FILE_PATH`: Path for audit data files (default: `src/data/audit_data.xlsx`)
+4. Cập nhật các biến môi trường trong file `.env`
 
-## Usage
+## Biến môi trường
 
-### Generate Audit Template
+Tạo file `.env` trong thư mục gốc của project với các biến sau:
 
-Creates an Excel template file that can be filled with testing data:
+| Biến | Mô tả | Ví dụ |
+|------|-------|-------|
+| `SERVER_ENDPOINT` | Địa chỉ API server | `http://localhost:3000` |
+| `ACCESS_TOKEN` | Token để xác thực với API | `your-access-token` |
+| `BATCHNAME` | Tên batch để kiểm thử | `Test` |
+| `ACCOUNT_ID` | ID tài khoản | `your-account-id` |
+| `INSTANCE_ID` | ID instance | `your-instance-id` |
+| `AUDIT_FILE_PATH` | Đường dẫn đến file Excel audit | `data/audit_data.xlsx` |
+
+## Sử dụng
+
+### 1. Tạo Template Audit
+
+Lấy dữ liệu từ API và tạo file Excel template:
 
 ```bash
-yarn build-template
+npm run build-template
 ```
 
-This command will:
-1. Fetch audit questions from the configured API endpoint
-2. Generate an Excel file at `data/audit_template.xlsx`
-3. Populate it with question data from the API
-4. Leave answer fields empty for manual filling
+Hoặc:
+```bash
+node src/index.js build-template
+```
 
-The generated Excel file contains:
-- Question hierarchy (Categories, Subcategories, Sub-subcategories)
-- All audit questions
-- Empty fields for answers and AI evaluation results
+File sẽ được tạo tại: `data/audit_template.xlsx`
 
-## Project Structure
+### 2. Submit câu trả lời
+
+Gửi câu trả lời từ file Excel lên hệ thống audit:
+
+```bash
+npm run submit -- --index=1 --questionId=abc123
+```
+
+Hoặc:
+```bash
+node src/index.js submit --index=1 --questionId=abc123
+```
+
+**Tham số:**
+- `--index`: Số thứ tự câu hỏi trong file Excel
+- `--questionId`: ID của câu hỏi
+
+### 3. Lấy kết quả
+
+Lấy kết quả xác thực từ AI và cập nhật vào file Excel:
+
+```bash
+npm run get-result -- --index=1 --questionId=abc123
+```
+
+Hoặc:
+```bash
+node src/index.js get-result --index=1 --questionId=abc123
+```
+
+**Tham số:**
+- `--index`: Số thứ tự câu hỏi trong file Excel
+- `--questionId`: ID của câu hỏi
+
+## Cấu trúc thư mục
 
 ```
 gravity-testing-tool/
 ├── src/
-│   ├── index.js                  # Entry point
-│   ├── commands/
-│   │   └── buildTemplate.js      # Template generation command
-│   ├── services/
-│   │   ├── apiService.js         # API communication
-│   │   ├── excelService.js       # Excel file operations
-│   │   └── templateGenerator.js  # Template generation logic
-│   └── utils/
-│       ├── config.js             # Configuration loader
-│       └── logger.js             # Logging utility
-└── data/
-    └── audit_template.xlsx       # Generated template (gitignored)
+│   ├── commands/         # Các command CLI
+│   ├── services/         # Business logic
+│   ├── utils/           # Utility functions
+│   └── index.js         # Entry point
+├── data/                # Thư mục chứa file Excel
+├── .env                 # Biến môi trường (không commit)
+└── package.json         # Dependencies và scripts
 ```
-
-## Technology Stack
-
-- **Node.js**: JavaScript runtime
-- **yarn**: Package manager
-- **exceljs**: Excel file generation
-- **axios**: HTTP client
-- **dotenv**: Environment configuration
-- **fs-extra**: Enhanced file system operations
-
-## Error Handling
-
-The tool provides clear error messages for common issues:
-- Missing or invalid environment variables
-- API connection errors
-- Invalid API responses
-- File system errors
 
 ## License
 

@@ -73,6 +73,7 @@ class TemplateGenerator {
           preAuditItems.forEach(item => {
             const row = {
               // Fixed fields from environment
+              accountId: config.accountId,
               instanceId: config.instanceId,
               promptName: '',
               systemPrompt: '',
@@ -92,8 +93,11 @@ class TemplateGenerator {
 
               // Scenario 1 fields (empty for user to fill)
               answer1: '',
+              version1: '',
+              status1: '',
               aiScore1: '',
-              aiResponse1: ''
+              aiResponseAt1: '',
+              aiAnswer1: ''
             };
 
             rows.push(row);

@@ -4,7 +4,9 @@
   "description": "Testing tool for validating LLM evaluation results in audit processes",
   "main": "src/index.js",
   "scripts": {
-    "build-template": "node src/index.js build-template"
+    "build-template": "node src/index.js build-template",
+    "submit": "node src/index.js submit",
+    "get-result": "node src/index.js get-result"
   },
   "keywords": [
     "audit",

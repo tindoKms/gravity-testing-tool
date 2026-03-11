@@ -14,7 +14,8 @@ function validateConfig() {
     'SERVER_ENDPOINT',
     'ACCESS_TOKEN',
     'BATCHNAME',
-    'INSTANCEID',
+    'INSTANCE_ID',
+    'ACCOUNT_ID',
     'AUDIT_FILE_PATH'
   ];
 
@@ -35,14 +36,15 @@ const config = {
   serverEndpoint: process.env.SERVER_ENDPOINT,
   accessToken: process.env.ACCESS_TOKEN,
   batchName: process.env.BATCHNAME,
-  instanceId: process.env.INSTANCEID,
+  accountId: process.env.ACCOUNT_ID, 
+  instanceId: process.env.INSTANCE_ID,
   auditFilePath: process.env.AUDIT_FILE_PATH,
   
   /**
    * Get the full API URL for fetching instance data
    */
   getApiUrl() {
-    return `${this.serverEndpoint}/api/instance/${this.batchName}/${this.instanceId}`;
+    return `${this.serverEndpoint}/api/instance/${this.batchName}/${this.accountId}`;
   },
 
   /**

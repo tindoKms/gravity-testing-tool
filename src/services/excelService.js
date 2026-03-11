@@ -25,6 +25,7 @@ class ExcelService {
 
       // Define fixed columns
       const fixedColumns = [
+        { header: 'AccountId', key: 'accountId', width: 15 },
         { header: 'InstanceId', key: 'instanceId', width: 15 },
         { header: 'PromptName', key: 'promptName', width: 20 },
         { header: 'SystemPrompt', key: 'systemPrompt', width: 30 },
@@ -47,7 +48,8 @@ class ExcelService {
           { header: `Version${i}`, key: `version${i}`, width: 15 },
           { header: `Status${i}`, key: `status${i}`, width: 30 },
           { header: `AiScore${i}`, key: `aiScore${i}`, width: 15 },
-          { header: `AiResponse${i}`, key: `aiResponse${i}`, width: 40 },
+          { header: `AiProcessedAt${i}`, key: `aiProcessedAt${i}`, width: 30 },
+          { header: `AiAnswer${i}`, key: `aiAnswer${i}`, width: 40 },
         );
       }
 
@@ -94,7 +96,7 @@ class ExcelService {
   }
 
   /**
-   * Read an Excel file
+   * Read an Excel file and return rows with header mapping
    * @param {string} filePath - Path to the Excel file
    * @returns {Promise<Array<Object>>} Array of row data
    */
@@ -138,6 +140,55 @@ class ExcelService {
         throw new Error(`File not found: ${filePath}`);
       } else {
         throw new Error(`Failed to read Excel file: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * Update specific cells in the Excel file and save
+   * @param {string} filePath - Path to the Excel file
+   * @param {Array<Object>} updates - Array of { rowIndex, columnName, value }
+   *   rowIndex is 0-based (relative to data rows, excluding header)
+   * @returns {Promise<void>}
+   */
+  async updateAndSave(filePath, updates) {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(filePath);
+
+      const worksheet = workbook.getWorksheet('Audit1');
+      if (!worksheet) {
+        throw new Error('Worksheet "Audit1" not found');
+      }
+
+      // Build header-to-column mapping
+      const headerMap = {};
+      worksheet.getRow(1).eachCell((cell, colNumber) => {
+        headerMap[cell.value] = colNumber;
+      });
+
+      // Apply updates
+      updates.forEach(({ rowIndex, columnName, value }) => {
+        const colNumber = headerMap[columnName];
+        if (!colNumber) {
+          throw new Error(`Column "${columnName}" not found in Excel file`);
+        }
+        // rowIndex is 0-based data row, +2 for 1-based and header row
+        const excelRow = rowIndex + 2;
+        worksheet.getRow(excelRow).getCell(colNumber).value = value;
+      });
+
+      // Save workbook
+      await workbook.xlsx.writeFile(filePath);
+
+    } catch (error) {
+      if (error.code === 'EACCES') {
+        throw new Error(
+          `Permission denied: Cannot write to ${filePath}\n` +
+          `Please check file permissions or close the file if it's open.`
+        );
+      } else {
+        throw new Error(`Failed to update Excel file: ${error.message}`);
       }
     }
   }

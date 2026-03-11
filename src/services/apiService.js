@@ -69,6 +69,51 @@ class ApiService {
   }
 
   /**
+   * Submit an answer for a specific question
+   * @param {string} instanceId - The instance ID
+   * @param {string} categoryId - The category ID
+   * @param {string} questionId - The question ID
+   * @param {string} answer - The answer text
+   * @param {number} version - The version number to submit
+   * @returns {Promise<Object>} The API response
+   * @throws {Error} If the request fails
+   */
+  async submitAnswer(instanceId, categoryId, questionId, answer, version) {
+    try {
+      const url = `${config.serverEndpoint}/api/instance/update-answer/${instanceId}/categoryId/${categoryId}`;
+      logger.info(`Submitting answer to: ${url}`);
+
+      const body = {
+        id: questionId,
+        data: `<p>${answer}</p>`,
+        version: version
+      };
+
+      const response = await this.client.post(url, body);
+      return response.data;
+
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.statusText;
+        throw new Error(
+          `API request failed with status ${status}: ${message}\n` +
+          `URL: ${config.serverEndpoint}/api/instance/update-answer/${instanceId}/categoryId/${categoryId}`
+        );
+      } else if (error.request) {
+        throw new Error(
+          `No response from server. Please check:\n` +
+          `1. Server is running at ${config.serverEndpoint}\n` +
+          `2. Network connectivity\n` +
+          `Original error: ${error.message}`
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
    * Count total questions in the audit data
    * @param {Object} auditData - The audit data from API
    * @returns {number} Total number of questions
