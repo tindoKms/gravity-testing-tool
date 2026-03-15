@@ -78,6 +78,10 @@ class TemplateGenerator {
               promptName: '',
               systemPrompt: '',
               userPrompt: '',
+              promptDescription: item.question || '',
+              promptId: '',
+              promptVersion: '',
+              promptStatus: '',
 
               // Hierarchy fields
               categoryName: categoryName,

@@ -114,6 +114,52 @@ class ApiService {
   }
 
   /**
+   * Sync a prompt configuration to the iQBR system
+   * @param {Object} promptData - The prompt data
+   * @param {string} promptData.name - Prompt name
+   * @param {string} promptData.description - Prompt description
+   * @param {string} promptData.systemPrompt - System prompt
+   * @param {string} promptData.userPrompt - User prompt
+   * @returns {Promise<Object>} The API response
+   * @throws {Error} If the request fails
+   */
+  async syncPrompt(promptData) {
+    try {
+      const url = `${config.serverEndpoint}/api/prompt`;
+      logger.info(`Syncing prompt to: ${url}`);
+
+      const body = {
+        description: promptData.description,
+        name: promptData.name,
+        systemPrompt: promptData.systemPrompt,
+        userPrompt: promptData.userPrompt
+      };
+
+      const response = await this.client.post(url, body);
+      return response;
+
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.statusText;
+        throw new Error(
+          `API request failed with status ${status}: ${message}\n` +
+          `URL: ${config.serverEndpoint}/api/prompt`
+        );
+      } else if (error.request) {
+        throw new Error(
+          `No response from server. Please check:\n` +
+          `1. Server is running at ${config.serverEndpoint}\n` +
+          `2. Network connectivity\n` +
+          `Original error: ${error.message}`
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
    * Count total questions in the audit data
    * @param {Object} auditData - The audit data from API
    * @returns {number} Total number of questions
