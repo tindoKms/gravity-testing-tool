@@ -71,8 +71,8 @@ node src/index.js submit --index=1 --questionId=abc123
 ```
 
 **Tham số:**
-- `--index`: Số thứ tự câu hỏi trong file Excel
-- `--questionId`: ID của câu hỏi
+- `--index`: Số thứ tự câu hỏi trong file Excel, nếu không khai báo index thì sẽ tự động set index=1
+- `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ submit hết tất cả answer tương ứng với cột index
 
 ### 3. Lấy kết quả
 
@@ -88,8 +88,24 @@ node src/index.js get-result --index=1 --questionId=abc123
 ```
 
 **Tham số:**
-- `--index`: Số thứ tự câu hỏi trong file Excel
-- `--questionId`: ID của câu hỏi
+- `--index`: Số thứ tự câu hỏi trong file Excel, nếu không khai báo index thì sẽ tự động set index=1
+- `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ get result tất cả answer tương ứng với cột index
+
+### 4. Sync prompt lên server
+
+Tự động tạo prompt từ Excel lên trên system, nếu promptName đã tồn tại thì sẽ không hợp lệ, nếu promptName và userPrompt thì sẽ bị SKIP
+
+```bash
+npm run sync-prompt -- --questionId=abc123
+```
+
+Hoặc:
+```bash
+node src/index.js sync-prompt --questionId=abc123
+```
+
+**Tham số:**
+- `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ submit tất cả prompt
 
 ## Cấu trúc thư mục
 
