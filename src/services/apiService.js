@@ -85,7 +85,7 @@ class ApiService {
 
       const body = {
         id: questionId,
-        data: `<p>${answer}</p>`,
+        answer: `<p>${answer}</p>`,
         version: version
       };
 
