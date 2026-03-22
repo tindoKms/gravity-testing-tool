@@ -7,7 +7,8 @@
     "build-template": "node src/index.js build-template",
     "submit": "node src/index.js submit",
     "get-result": "node src/index.js get-result",
-    "sync-prompt": "node src/index.js sync-prompt"
+    "sync-prompt": "node src/index.js sync-prompt",
+    "validate-answer": "node src/index.js validate-answer"
   },
   "keywords": [
     "audit",

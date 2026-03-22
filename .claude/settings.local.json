@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.md$|\\\\.env\")",
+      "Bash(find D:SideProjectgravity-testing-tool -not -path */node_modules* -not -path */.git/* -type f)"
+    ]
+  }
+}

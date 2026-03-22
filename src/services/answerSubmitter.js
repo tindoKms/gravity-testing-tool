@@ -26,9 +26,10 @@ class AnswerSubmitter {
    * @param {Object} options - Command options
    * @param {number} options.index - The answer column index
    * @param {string} [options.questionId] - Optional specific question ID
+   * @param {boolean} [options.autoValidate] - Auto-validate after submission
    * @returns {Promise<void>}
    */
-  async submit({ index, questionId }) {
+  async submit({ index, questionId, autoValidate = false }) {
     // Step 1: Retrieve instance data
     logger.info('Fetching audit instance data from server...');
     const auditData = await apiService.fetchAuditInstance();
@@ -55,12 +56,12 @@ class AnswerSubmitter {
       }
 
       logger.info(`Submitting answer for question: ${questionId}`);
-      await this.processRow(rows[rowIndex], rowIndex, index, excelPath);
+      await this.processRow(rows[rowIndex], rowIndex, index, excelPath, autoValidate);
     } else {
       // Submit all answers
       logger.info(`Submitting all answers for index ${index}...`);
       for (let i = 0; i < rows.length; i++) {
-        await this.processRow(rows[i], i, index, excelPath);
+        await this.processRow(rows[i], i, index, excelPath, autoValidate);
       }
     }
 
@@ -92,9 +93,10 @@ class AnswerSubmitter {
    * @param {number} rowIndex - The 0-based row index in the data
    * @param {number} index - The scenario index
    * @param {string} excelPath - Path to the Excel file
+   * @param {boolean} autoValidate - Auto-validate after submission
    * @returns {Promise<void>}
    */
-  async processRow(row, rowIndex, index, excelPath) {
+  async processRow(row, rowIndex, index, excelPath, autoValidate = false) {
     const answerKey = `Answer${index}`;
     const versionKey = `Version${index}`;
     const statusKey = `Status${index}`;
@@ -144,6 +146,11 @@ class AnswerSubmitter {
         { rowIndex, columnName: statusKey, value: SUBMIT_STATUS.SUCCESS }
       ]);
 
+      // Auto-validate if flag is set
+      if (autoValidate) {
+        await this.autoValidateAnswer(row, rowIndex, excelPath);
+      }
+
     } catch (error) {
       // Step 9: Update status - failed
       logger.error(`Failed to submit question ${questionId}`, error);
@@ -174,6 +181,51 @@ class AnswerSubmitter {
     }
 
     return null;
+  }
+
+  /**
+   * Auto-validate answer after successful submission
+   * @param {Object} row - The Excel row data
+   * @param {number} rowIndex - The 0-based row index in the data
+   * @param {string} excelPath - Path to the Excel file
+   * @returns {Promise<void>}
+   */
+  async autoValidateAnswer(row, rowIndex, excelPath) {
+    const questionId = row.QuestionId;
+    const categoryId = row.CategoryId;
+    const categoryName = row.CategoryName;
+    const subCategoryId = row.SubCategoryId;
+    const subSubCategoryId = row.SubSubCategoryId;
+
+    try {
+      logger.info(`Auto-validating answer for question: ${questionId}`);
+
+      await apiService.validateAnswer({
+        questions: [{ questionId }],
+        instanceId: config.instanceId,
+        accountId: config.accountId,
+        batchName: config.batchName,
+        categoryId,
+        subCategoryId,
+        subSubCategoryId,
+        categoryName
+      });
+
+      // Update Excel with validation success
+      logger.success(`Question ${questionId} validation triggered successfully`);
+      await excelService.updateAndSave(excelPath, [
+        { rowIndex, columnName: 'ValidateAi', value: 'Yes' },
+        { rowIndex, columnName: 'SubmitValidateStatus', value: 'SUCCESS' }
+      ]);
+
+    } catch (error) {
+      // Update Excel with validation failure
+      logger.error(`Failed to validate question ${questionId}`, error);
+      await excelService.updateAndSave(excelPath, [
+        { rowIndex, columnName: 'ValidateAi', value: 'Yes' },
+        { rowIndex, columnName: 'SubmitValidateStatus', value: 'FAIL' }
+      ]);
+    }
   }
 }
 

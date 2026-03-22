@@ -41,7 +41,9 @@ class ExcelService {
         { header: 'SubSubCategoryName', key: 'subSubCategoryName', width: 25 },
         { header: 'SubSubCategoryId', key: 'subSubCategoryId', width: 15 },
         { header: 'QuestionId', key: 'questionId', width: 15 },
-        { header: 'Question', key: 'question', width: 50 }
+        { header: 'Question', key: 'question', width: 50 },
+        { header: 'ValidateAi', key: 'validateAi', width: 15 },
+        { header: 'SubmitValidateStatus', key: 'submitValidateStatus', width: 20 }
       ];
 
       // Add dynamic columns for each scenario

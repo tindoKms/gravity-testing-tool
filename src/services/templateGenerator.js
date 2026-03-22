@@ -94,6 +94,8 @@ class TemplateGenerator {
               // Question fields
               questionId: item.id || '',
               question: item.question || '',
+              validateAi: '',
+              submitValidateStatus: '',
 
               // Scenario 1 fields (empty for user to fill)
               answer1: '',

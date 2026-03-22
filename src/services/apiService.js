@@ -160,6 +160,60 @@ class ApiService {
   }
 
   /**
+   * Trigger AI validation for answers of specific questions
+   * @param {Object} params - Validation parameters
+   * @param {Array<{questionId: string}>} params.questions - Questions to validate
+   * @param {string} params.instanceId - The instance ID
+   * @param {string} params.accountId - The account ID
+   * @param {string} params.batchName - The batch name
+   * @param {string} params.categoryId - The category ID
+   * @param {string} params.subCategoryId - The sub-category ID
+   * @param {string} params.subSubCategoryId - The sub-sub-category ID
+   * @param {string} params.categoryName - The category name
+   * @returns {Promise<Object>} The API response
+   * @throws {Error} If the request fails
+   */
+  async validateAnswer(params) {
+    try {
+      const url = `${config.serverEndpoint}/api/ai/validate`;
+      logger.info(`Triggering validation at: ${url}`);
+
+      const body = {
+        questions: params.questions,
+        instanceId: params.instanceId,
+        accountId: params.accountId,
+        batchName: params.batchName,
+        categoryId: params.categoryId,
+        subCategoryId: params.subCategoryId,
+        subSubCategoryId: params.subSubCategoryId,
+        categoryName: params.categoryName
+      };
+
+      const response = await this.client.post(url, body);
+      return response.data;
+
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.statusText;
+        throw new Error(
+          `API request failed with status ${status}: ${message}\n` +
+          `URL: ${config.serverEndpoint}/api/ai/validate`
+        );
+      } else if (error.request) {
+        throw new Error(
+          `No response from server. Please check:\n` +
+          `1. Server is running at ${config.serverEndpoint}\n` +
+          `2. Network connectivity\n` +
+          `Original error: ${error.message}`
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
    * Count total questions in the audit data
    * @param {Object} auditData - The audit data from API
    * @returns {number} Total number of questions

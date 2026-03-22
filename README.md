@@ -55,7 +55,9 @@ Hoặc:
 node src/index.js build-template
 ```
 
-File sẽ được tạo tại: `data/audit_template.xlsx`
+**Lưu ý:**
+- File sẽ được tạo tại: `data/audit_template.xlsx`
+- Nếu file đã tồn tại, nó sẽ bị ghi đè
 
 ### 2. Submit câu trả lời
 
@@ -73,6 +75,18 @@ node src/index.js submit --index=1 --questionId=abc123
 **Tham số:**
 - `--index`: Số thứ tự câu hỏi trong file Excel, nếu không khai báo index thì sẽ tự động set index=1
 - `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ submit hết tất cả answer tương ứng với cột index
+- `--auto-validate`: Tự động validate answer sau khi submit thành công. Nếu validate thành công sẽ fill `ValidateAi=Yes` và `SubmitValidateStatus=SUCCESS`, nếu fail sẽ fill `ValidateAi=Yes` và `SubmitValidateStatus=FAIL`
+
+**Ví dụ submit với auto-validate:**
+```bash
+npm run submit -- --index=1 --questionId=abc123 --auto-validate
+```
+
+**Lưu ý:**
+- Nếu không có `--questionId`, tất cả các answer trong cột index sẽ được submit
+- Answer rỗng sẽ bị skip và Status được set là SKIP
+- Version sẽ được tự động lấy từ audit template trên server
+- Khi sử dụng `--auto-validate`, validation sẽ chỉ chạy sau khi submit thành công
 
 ### 3. Lấy kết quả
 
@@ -91,7 +105,33 @@ node src/index.js get-result --index=1 --questionId=abc123
 - `--index`: Số thứ tự câu hỏi trong file Excel, nếu không khai báo index thì sẽ tự động set index=1
 - `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ get result tất cả answer tương ứng với cột index
 
-### 4. Sync prompt lên server
+**Lưu ý:**
+- Command này lấy kết quả đánh giá từ AI và cập nhật vào các cột: `AiScore`, `AiProcessedAt`, `AiAnswer`
+- Chỉ lấy kết quả cho các answer đã được submit thành công
+- Nếu AI chưa xử lý xong, kết quả có thể chưa có
+
+### 4. Validate Answer
+
+Trigger AI validation cho các answer đã submit:
+
+```bash
+npm run validate-answer -- --questionId=abc123
+```
+
+Hoặc:
+```bash
+node src/index.js validate-answer --questionId=abc123
+```
+
+**Tham số:**
+- `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ validate tất cả answer có `ValidateAi` không rỗng
+
+**Lưu ý:**
+- Command này chỉ validate các row có cột `ValidateAi` không rỗng
+- Kết quả sẽ được cập nhật vào cột `SubmitValidateStatus` (SUCCESS/FAILED/SKIP)
+- Có delay 300ms giữa các request khi validate nhiều question để tránh rate limiting
+
+### 5. Sync prompt lên server
 
 Tự động tạo prompt từ Excel lên trên system, nếu promptName đã tồn tại thì sẽ không hợp lệ, nếu promptName và userPrompt thì sẽ bị SKIP
 
@@ -106,6 +146,11 @@ node src/index.js sync-prompt --questionId=abc123
 
 **Tham số:**
 - `--questionId`: ID của câu hỏi, nếu không có questionId thì sẽ submit tất cả prompt
+
+**Lưu ý:**
+- Command này chỉ sync các row có cả `PromptName` và `UserPrompt` không rỗng
+- Nếu `PromptName` đã tồn tại trên server, prompt sẽ không được tạo và bị đánh dấu FAILED
+- Row thiếu thông tin sẽ bị SKIP
 
 ## Cấu trúc thư mục
 
